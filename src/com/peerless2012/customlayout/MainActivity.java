@@ -8,6 +8,7 @@ import android.widget.FrameLayout;
 public class MainActivity extends Activity {
 
 	private int[] mLayoutRess = {
+			R.layout.view_auto_full_screen,
 			R.layout.view_percent_layout
 	};
 	
