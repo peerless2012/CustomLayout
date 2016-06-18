@@ -16,7 +16,7 @@
                 android:layout_height="match_parent"/>
         </RelativeLayout>
         
-        <ScrollView 
+        <android.support.v4.widget.NestedScrollView
             android:clipToPadding="false"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -26,60 +26,60 @@
                 android:orientation="vertical">
                 <TextView android:layout_width="match_parent"
                     android:layout_height="150dp"
-                    android:text="测试"
+                    android:text="1 测试"
                     android:background="#33FF0056"
                     android:gravity="center"/>
                 <TextView android:layout_width="match_parent"
                     android:layout_height="150dp"
-                    android:text="测试"
+                    android:text="2 测试"
                     android:background="#330F0056"
                     android:gravity="center"/>
                 <TextView android:layout_width="match_parent"
                     android:layout_height="150dp"
-                    android:text="测试"
+                    android:text="3 测试"
                     android:background="#33FF00F6"
                     android:gravity="center"/>
                 <TextView android:layout_width="match_parent"
                     android:layout_height="150dp"
-                    android:text="测试"
+                    android:text="4 测试"
                     android:gravity="center"/>
                 <TextView android:layout_width="match_parent"
                     android:layout_height="150dp"
-                    android:text="测试"
+                    android:text="5 测试"
                     android:background="#33FFF056"
                     android:gravity="center"/>
                 <TextView android:layout_width="match_parent"
                     android:layout_height="150dp"
-                    android:text="测试"
+                    android:text="6 测试"
                     android:background="#33FFFF56"
                     android:gravity="center"/>
                 <TextView android:layout_width="match_parent"
                     android:layout_height="150dp"
-                    android:text="测试"
+                    android:text="7 测试"
                     android:background="#33FF0FF6"
                     android:gravity="center"/>
                 <TextView android:layout_width="match_parent"
                     android:layout_height="150dp"
-                    android:text="测试"
+                    android:text="8 测试"
                     android:background="#33FF0F60"
                     android:gravity="center"/>
                 <TextView android:layout_width="match_parent"
                     android:layout_height="150dp"
-                    android:text="测试"
+                    android:text="9 测试"
                     android:background="#33FF0F6F"
                     android:gravity="center"/>
                 <TextView android:layout_width="match_parent"
                     android:layout_height="150dp"
-                    android:text="测试"
+                    android:text="10 测试"
                     android:background="#33F97F6F"
                     android:gravity="center"/>
                 <TextView android:layout_width="match_parent"
                     android:layout_height="150dp"
                     android:background="#33F07FFF"
-                    android:text="测试"
+                    android:text="11 测试"
                     android:gravity="center"/>
             </LinearLayout>
-        </ScrollView>
+        </android.support.v4.widget.NestedScrollView>
         
     </com.peerless2012.customlayout.widget.AutoFullScreenLayout>
 
