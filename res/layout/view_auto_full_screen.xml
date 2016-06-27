@@ -78,7 +78,7 @@
                     android:text="11 测试"
                     android:gravity="center"/>
             </LinearLayout>
-        </android.support.v4.widget.NestedScrollView>
+       </android.support.v4.widget.NestedScrollView>
         
     </com.peerless2012.customlayout.widget.AutoFullScreenLayout>
 
