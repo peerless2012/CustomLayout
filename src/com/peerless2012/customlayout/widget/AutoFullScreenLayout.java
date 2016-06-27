@@ -186,9 +186,7 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
 			
 		case MotionEvent.ACTION_MOVE:
 			float y2 = event.getY();
-			if (preY > 0) {
-//				updatePadding(y2 - preY);
-			}
+			moveBy(preY - y2);
 			preY = y2;
 			break;
 			
@@ -288,14 +286,14 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
 	@Override
 	public boolean onNestedFling(View target, float velocityX, float velocityY,
 			boolean consumed) {
-//		Log.i("AutoFullScreenLayout", "onNestedFling     : velocityY = "+velocityY);
+		Log.i("fling", "onNestedFling     : velocityY = "+velocityY);
 		return false;
 	}
 
 	@Override
 	public boolean onNestedPreFling(View target, float velocityX,
 			float velocityY) {
-//		Log.i("AutoFullScreenLayout", "onNestedPreFling     : velocityY = "+velocityY);
+		Log.i("fling", "onNestedPreFling     : velocityY = "+velocityY);
 //		if (velocityY < -1000) {
 //			int paddingTop = mSecondView.getPaddingTop();
 //			if (paddingTop != paddingLimit) {
