@@ -14,6 +14,8 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.webkit.CookieManager;
+import android.webkit.WebView;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
 
@@ -229,7 +231,7 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
 	
 	private void dispatchFling(float velocityY) {
 		//- height ---- H
-		int current = mYOffset + mSecondView.getScrollY();
+		int current = mYOffset - mSecondView.getScrollY();
 		Log.i("fling", "current   "+current+"  ,mYOffset = "+ mYOffset + " ,ScrollY = "+ mSecondView.getScrollY());
 		// fling
 		if (velocityY > 0) {// 向下滑动
@@ -267,14 +269,16 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
 				requestLayout();
 				invalidate();
 			}else {
-				if (mYOffset > mHeightLimit) {
+				// 不会到这一行
+				Log.i("fling", "computeScroll    不应该到这一行 ");
+				/*if (mYOffset > mHeightLimit) {
 					Log.i("fling", "computeScroll    Layout 修复");
 					mYOffset = mHeightLimit;
 					mSecondView.layout(0, mYOffset, mSecondView.getMeasuredWidth(), mYOffset + mSecondView.getMeasuredHeight());
 				}
 				Log.i("fling", "computeScroll    Scroll " + (currY - mHeightLimit));
 				mSecondView.scrollTo(0,currY - mHeightLimit);
-				invalidate();
+				invalidate();*/
 			}
 //			
 //			
@@ -378,7 +382,7 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
 	@Override
 	public int getNestedScrollAxes() {
 		Log.i("AutoFullScreenLayout", "getNestedScrollAxes     : ");
-		return helper.getNestedScrollAxes();
+		return helper.getNestedScrollAxes();	
 	}
 
     private int moveBy(float deltaY) {
