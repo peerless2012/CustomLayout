@@ -101,28 +101,15 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
 		flag = false;
 	}
 	private static final int INVALID_POINTER = -1;
-	private boolean mReturningToStart;
 	private int mActivePointerId = INVALID_POINTER;
 	private boolean mIsBeingDragged;
 	private float mInitialMotionY;
     private float mInitialDownY;
 	@Override
 	public boolean onInterceptTouchEvent(MotionEvent ev) {
-		final int action = MotionEventCompat.getActionMasked(ev);
+		int action = ev.getAction();
 		
-		if (ev.getAction() == MotionEvent.ACTION_DOWN) {
-			preY = downY = ev.getY();
-		}
-		return super.onInterceptTouchEvent(ev);
-		/*if (mYOffset > 0) {
-			return true;
-		}
-		
-		if (mReturningToStart && action == MotionEvent.ACTION_DOWN) {
-            mReturningToStart = false;
-        }
-		
-		if (!isEnabled() || mReturningToStart || canChildScrollUp()) {
+		if (!isEnabled() || mYOffset < 0) {
             // Fail fast if we're not in a state where a swipe is possible
             return false;
         }
@@ -136,6 +123,7 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
                     return false;
                 }
                 mInitialDownY = initialDownY;
+                preY = downY = ev.getY();
                 break;
 
             case MotionEvent.ACTION_MOVE:
@@ -148,15 +136,10 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
                     return false;
                 }
                 final float yDiff = y - mInitialDownY;
-                if (yDiff > mTouchSlop && !mIsBeingDragged) {
+                if (Math.abs(yDiff) > mTouchSlop && !mIsBeingDragged) {
                     mInitialMotionY = mInitialDownY + mTouchSlop;
                     mIsBeingDragged = true;
-//                    mProgress.setAlpha(STARTING_PROGRESS_ALPHA);
                 }
-                break;
-
-            case MotionEventCompat.ACTION_POINTER_UP:
-//                onSecondaryPointerUp(ev);
                 break;
 
             case MotionEvent.ACTION_UP:
@@ -166,7 +149,7 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
                 break;
         }
 
-        return mIsBeingDragged;*/
+        return mIsBeingDragged;
 	}
     
 	private View mTarget;
