@@ -45,8 +45,6 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
 	
 	private int mHeightLimit;
 	
-	private OnScrollListener mOnScrollListener;
-	
 	private int mInitY;
 	
 	private int mCanScrollY;
@@ -76,20 +74,12 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
 		ViewConfiguration viewConfiguration = ViewConfiguration.get(getContext());
 		mMaxVelocity = viewConfiguration.getScaledMaximumFlingVelocity();
 		mMinVelocity = viewConfiguration.getScaledMinimumFlingVelocity();
-		
-		setOnscrollListener(new OnScrollListener() {
-			
-			@Override
-			public void onScrollChanged(AutoFullScreenLayout autoFullScreenLayout,
-					int x, int y, int oldx, int oldy) {
-				Log.i("onScrollChanged", "mInitHeight = "+mInitHeight +"   ,y = "+ y+"   ,oldY = " + oldy);
-				if (y > mInitHeight) {
-//					mCurrentY = (int) (((y - mInitHeight) / ((getMeasuredHeight() - mInitHeight) * 1.0f)) * mCanScrollY);
-//					requestLayout();
-				}
-			}
-		});
 		mYOffset = mInitHeight = 300;
+	}
+	
+	
+	private int cumputeY(int y) {
+		return (int) (((y - mInitHeight) / ((getMeasuredHeight() - mInitHeight) * 1.0f)) * mCanScrollY) + mInitY;
 	}
 	
 	@Override
@@ -101,7 +91,6 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
 		}
 		mMainView = getChildAt(0);
 		mSecondView = getChildAt(1);
-//		mTarget = mSecondView;
 	}
 	
 	@Override
@@ -117,7 +106,8 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right,
 			int bottom) {
-		mMainView.layout(0, mCurrentY, mMainView.getMeasuredWidth(), mCurrentY + mMainView.getMeasuredHeight());
+		int cumputeY = cumputeY(mYOffset);
+		mMainView.layout(0, cumputeY, mMainView.getMeasuredWidth(), cumputeY + mMainView.getMeasuredHeight());
 		mSecondView.layout(0, mYOffset, mSecondView.getMeasuredWidth(), mYOffset + mSecondView.getMeasuredHeight());
 		flag = false;
 	}
@@ -176,23 +166,6 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
         return mIsBeingDragged;
 	}
     
-	/*private View mTarget;
-	public boolean canChildScrollUp() {
-	        if (android.os.Build.VERSION.SDK_INT < 14) {
-	            if (mTarget instanceof AbsListView) {
-	                final AbsListView absListView = (AbsListView) mTarget;
-	                return absListView.getChildCount() > 0
-	                        && (absListView.getFirstVisiblePosition() > 0 || absListView.getChildAt(0)
-	                                .getTop() < absListView.getPaddingTop());
-	            } else {
-	                return ViewCompat.canScrollVertically(mTarget, -1) || mTarget.getScrollY() > 0;
-	            }
-	        } else {
-	            return ViewCompat.canScrollVertically(mTarget, -1);
-	        }
-	    }*/
-
-	
 	private float preY,downY;
 	
 	@Override
@@ -270,51 +243,17 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
 						requestLayout();
 					}
 					mSecondView.scrollTo(0,-currY);
-					postInvalidate();
 				}else if (currY <= mHeightLimit) {
 					Log.i("computeScroll", "Layout ");
 					mYOffset = currY;
 //					mSecondView.layout(0, mYOffset, mSecondView.getMeasuredWidth(), mYOffset + mSecondView.getMeasuredHeight());
 					requestLayout();
-					postInvalidate();
 			}else {
 				// 不会到这一行
 				Log.i("computeScroll", "invalidate    不应该到这一行 ");
-				/*if (mYOffset > mHeightLimit) {
-					Log.i("fling", "computeScroll    Layout 修复");
-					mYOffset = mHeightLimit;
-					mSecondView.layout(0, mYOffset, mSecondView.getMeasuredWidth(), mYOffset + mSecondView.getMeasuredHeight());
-				}
-				Log.i("fling", "computeScroll    Scroll " + (currY - mHeightLimit));
-				mSecondView.scrollTo(0,currY - mHeightLimit);
-				invalidate();*/
 			}
-			if (mOnScrollListener != null && oldYOffset != mYOffset) {
-				mOnScrollListener.onScrollChanged(this, 0, mYOffset, 0, oldYOffset);
-			}
+			postInvalidate();
 			Log.i("computeScroll", "                                                          ");
-//			
-//			
-//			mYOffset = currY;
-//			if (mYOffset < 0) {
-//				mYOffset = 0;
-//				Log.i("UP", "computeScroll    reset " + mYOffset);
-//				mSecondView.layout(0, mYOffset, mSecondView.getMeasuredWidth(), mYOffset + mSecondView.getMeasuredHeight());
-////				requestLayout();
-//			}
-//			
-//			if (currY < 0 ) {
-//				Log.i("UP", "computeScroll    Scroll " + currY);
-//				mSecondView.scrollTo(0, -currY);
-//				invalidate();
-//			}else if (currY > mHeightLimit) {
-//				mSecondView.scrollTo(0, currY - mHeightLimit);
-//				invalidate();
-//			}else {
-//				Log.i("UP", "computeScroll    Layout " + mYOffset);
-//				mSecondView.layout(0, mYOffset, mSecondView.getMeasuredWidth(), mYOffset + mSecondView.getMeasuredHeight());
-//				requestLayout();
-//			}
 		}
 	}
 	
@@ -416,26 +355,7 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
 //        	mSecondView.layout(0, mYOffset, mSecondView.getMeasuredWidth(), mYOffset + mSecondView.getMeasuredHeight());
         	requestLayout();
         	postInvalidate();
-        	if (mOnScrollListener != null) {
-				mOnScrollListener.onScrollChanged(this, 0, mYOffset, 0, oldYOffset);
-			}
-        	
 		}
         return -consumed;
-    }
-    
-    public void setOnscrollListener(OnScrollListener listener) {
-    	
-		mOnScrollListener = listener;
-		
-	}
-    
-    
-    /*---------------------------------------------------------------------------------------------*/
-    
-    public interface OnScrollListener{
-    	
-    	void onScrollChanged(AutoFullScreenLayout autoFullScreenLayout, int x, int y, int oldx, int oldy);
-    	
     }
 }
