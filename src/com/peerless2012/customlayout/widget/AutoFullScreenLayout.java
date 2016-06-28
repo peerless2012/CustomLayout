@@ -14,9 +14,6 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.webkit.CookieManager;
-import android.webkit.WebView;
-import android.widget.AbsListView;
 import android.widget.FrameLayout;
 
 /**
@@ -48,6 +45,16 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
 	
 	private int mHeightLimit;
 	
+	private OnScrollListener mOnScrollListener;
+	
+	private int mInitY;
+	
+	private int mCanScrollY;
+	
+	private int mCurrentY;
+	
+	private int mInitHeight;
+	
 	public AutoFullScreenLayout(Context context) {
 		this(context,null);
 	}
@@ -69,6 +76,20 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
 		ViewConfiguration viewConfiguration = ViewConfiguration.get(getContext());
 		mMaxVelocity = viewConfiguration.getScaledMaximumFlingVelocity();
 		mMinVelocity = viewConfiguration.getScaledMinimumFlingVelocity();
+		
+		setOnscrollListener(new OnScrollListener() {
+			
+			@Override
+			public void onScrollChanged(AutoFullScreenLayout autoFullScreenLayout,
+					int x, int y, int oldx, int oldy) {
+				Log.i("onScrollChanged", "mInitHeight = "+mInitHeight +"   ,y = "+ y+"   ,oldY = " + oldy);
+				if (y > mInitHeight) {
+//					mCurrentY = (int) (((y - mInitHeight) / ((getMeasuredHeight() - mInitHeight) * 1.0f)) * mCanScrollY);
+//					requestLayout();
+				}
+			}
+		});
+		mYOffset = mInitHeight = 300;
 	}
 	
 	@Override
@@ -80,24 +101,24 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
 		}
 		mMainView = getChildAt(0);
 		mSecondView = getChildAt(1);
-		mTarget = mSecondView;
+//		mTarget = mSecondView;
 	}
 	
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		mHeightLimit = getMeasuredHeight();
+		mInitY =  -( getMeasuredHeight() / 2 - mInitHeight / 2 );
+		mCanScrollY = -mInitY;
+		Log.i("onMeasure", "mInitHeight = "+mInitHeight);
 	}
 	
 	
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right,
 			int bottom) {
-		int measuredWidth = mMainView.getMeasuredWidth();
-		int measuredHeight = mMainView.getMeasuredHeight();
-		if (mYOffset == -1) mYOffset = measuredHeight;
-		mMainView.layout(0, 0, getMeasuredWidth(), measuredHeight);
-		mSecondView.layout(0, mYOffset, mSecondView.getMeasuredWidth(), mSecondView.getMeasuredHeight());
+		mMainView.layout(0, mCurrentY, mMainView.getMeasuredWidth(), mCurrentY + mMainView.getMeasuredHeight());
+		mSecondView.layout(0, mYOffset, mSecondView.getMeasuredWidth(), mYOffset + mSecondView.getMeasuredHeight());
 		flag = false;
 	}
 	private static final int INVALID_POINTER = -1;
@@ -109,11 +130,14 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
 	public boolean onInterceptTouchEvent(MotionEvent ev) {
 		int action = ev.getAction();
 		
-		if (!isEnabled() || mYOffset < 0) {
+		if (!isEnabled() || mYOffset <= 0) {
             // Fail fast if we're not in a state where a swipe is possible
+			Log.i("computeScroll", "onInterceptTouchEvent  忽略");
+			
             return false;
         }
-
+		
+		Log.i("computeScroll", "onInterceptTouchEvent  不忽略");
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
@@ -152,7 +176,7 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
         return mIsBeingDragged;
 	}
     
-	private View mTarget;
+	/*private View mTarget;
 	public boolean canChildScrollUp() {
 	        if (android.os.Build.VERSION.SDK_INT < 14) {
 	            if (mTarget instanceof AbsListView) {
@@ -166,14 +190,14 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
 	        } else {
 	            return ViewCompat.canScrollVertically(mTarget, -1);
 	        }
-	    }
+	    }*/
 
 	
 	private float preY,downY;
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		Log.i("onTouchEvent", "onTouchEvent : "+ event.getAction());
+		Log.i("computeScroll", "onTouchEvent  e = "+event.getAction());
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
 			if (!mScroller.isFinished()) {
@@ -235,25 +259,27 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
 	public void computeScroll() {
 		super.computeScroll();
 		if (mScroller.computeScrollOffset()) {
+			int oldYOffset = mYOffset;
 			int currY = mScroller.getCurrY();
-			Log.i("fling", "computeScroll    当前Y =  " + currY+"   ,mYoffset = "+mYOffset);
-			if (currY <= 0) {
-				Log.i("fling", "computeScroll    Scroll " + (-currY));
-				if (mYOffset > 0) {
-					mYOffset = 0;
-					mSecondView.layout(0, mYOffset, mSecondView.getMeasuredWidth(), mYOffset + mSecondView.getMeasuredHeight());
-				}
-				mSecondView.scrollTo(0,-currY);
-				invalidate();
-			}else if (currY <= mHeightLimit) {
-				Log.i("fling", "computeScroll    Layout " + mYOffset);
-				mYOffset = currY;
-				mSecondView.layout(0, mYOffset, mSecondView.getMeasuredWidth(), mYOffset + mSecondView.getMeasuredHeight());
-				requestLayout();
-				invalidate();
+			Log.i("computeScroll", "computeScroll    currY =  " + currY+"   ,mYoffset = "+mYOffset);
+				if (currY <= 0) {
+					Log.i("computeScroll", "Scroll");
+					if (mYOffset > 0) {
+						mYOffset = 0;
+//						mSecondView.layout(0, mYOffset, mSecondView.getMeasuredWidth(), mYOffset + mSecondView.getMeasuredHeight());
+						requestLayout();
+					}
+					mSecondView.scrollTo(0,-currY);
+					postInvalidate();
+				}else if (currY <= mHeightLimit) {
+					Log.i("computeScroll", "Layout ");
+					mYOffset = currY;
+//					mSecondView.layout(0, mYOffset, mSecondView.getMeasuredWidth(), mYOffset + mSecondView.getMeasuredHeight());
+					requestLayout();
+					postInvalidate();
 			}else {
 				// 不会到这一行
-				Log.i("fling", "computeScroll    不应该到这一行 ");
+				Log.i("computeScroll", "invalidate    不应该到这一行 ");
 				/*if (mYOffset > mHeightLimit) {
 					Log.i("fling", "computeScroll    Layout 修复");
 					mYOffset = mHeightLimit;
@@ -263,6 +289,10 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
 				mSecondView.scrollTo(0,currY - mHeightLimit);
 				invalidate();*/
 			}
+			if (mOnScrollListener != null && oldYOffset != mYOffset) {
+				mOnScrollListener.onScrollChanged(this, 0, mYOffset, 0, oldYOffset);
+			}
+			Log.i("computeScroll", "                                                          ");
 //			
 //			
 //			mYOffset = currY;
@@ -335,7 +365,7 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
 		boolean canScrollUp = mSecondView.canScrollVertically(1);
 		Log.i("AutoFullScreenLayout", "canScrollDown : " + canScrollDown + "   ,canScrollUp = "+canScrollUp +"   "+dy);
 		// 不可以向下滑动 并且 Padding要在限定范围内
-		
+		Log.i("computeScroll", "onNestedPreScroll  mYOffset"+mYOffset+"   ,dy = "+dy);
 		if (dy < 0) {// 向下
 			if (!canScrollDown) {
 				consumed[1] = moveBy(dy);
@@ -370,6 +400,7 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
 
     private int moveBy(float deltaY) {
     	Log.i("UP", "deltaY = "+deltaY);
+    	int oldYOffset = mYOffset;
         int consumed = 0;
         float canScrollY = mYOffset - deltaY;
         if (canScrollY > mHeightLimit) {
@@ -379,12 +410,32 @@ public class AutoFullScreenLayout extends FrameLayout implements NestedScrolling
 		}
         consumed = (int) (canScrollY - mYOffset);
         if (consumed != 0) {
+        	Log.i("computeScroll", "moveBy  pre  "+"mYoffset = "+mYOffset);
         	mYOffset += consumed;
-//        	Log.i("AutoFullScreenLayout", "consumed = "+consumed+ "   ,padding = " + mYOffset);
-        	mSecondView.layout(0, mYOffset, mSecondView.getMeasuredWidth(), mYOffset + mSecondView.getMeasuredHeight());
+        	Log.i("computeScroll", "moveBy  aft  "+"mYoffset = "+mYOffset);
+//        	mSecondView.layout(0, mYOffset, mSecondView.getMeasuredWidth(), mYOffset + mSecondView.getMeasuredHeight());
         	requestLayout();
+        	postInvalidate();
+        	if (mOnScrollListener != null) {
+				mOnScrollListener.onScrollChanged(this, 0, mYOffset, 0, oldYOffset);
+			}
         	
 		}
         return -consumed;
+    }
+    
+    public void setOnscrollListener(OnScrollListener listener) {
+    	
+		mOnScrollListener = listener;
+		
+	}
+    
+    
+    /*---------------------------------------------------------------------------------------------*/
+    
+    public interface OnScrollListener{
+    	
+    	void onScrollChanged(AutoFullScreenLayout autoFullScreenLayout, int x, int y, int oldx, int oldy);
+    	
     }
 }
