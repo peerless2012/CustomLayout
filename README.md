@@ -4,12 +4,12 @@
 ### 仿安居客详情页
 原始效果
 <div align="center">
-	<img src="https://raw.githubusercontent.com/peerless2012/CustomerLayout/master/ScreenShots/anjuke.gif" alt="原始效果" align=center />
+	<img src="https://raw.githubusercontent.com/peerless2012/CustomLayout/master/ScreenShots/anjuke.gif" alt="原始效果" align=center />
 </div>
 
 高仿效果
 <div align="center">
-	<img src="https://raw.githubusercontent.com/peerless2012/CustomerLayout/master/ScreenShots/fanganjuke.gif" alt="高仿效果" align=center />
+	<img src="https://raw.githubusercontent.com/peerless2012/CustomLayout/master/ScreenShots/fanganjuke.gif" alt="高仿效果" align=center />
 </div>
 
 
